@@ -117,6 +117,71 @@ Switch# show spanning-tree
 This setup includes **PCs connected to access ports**, allowing you to configure **PortFast and additional STP security features.**
 
 ## 1. Enabling PortFast and Testing It
+
+Disable all unused ports (except 1–6):
+
+Go to global configuration mode:
+
+bash
+Copy
+Edit
+Switch# configure terminal
+Disable unused ports (let’s assume ports 7–24 are unused):
+
+bash
+Copy
+Edit
+Switch(config)# interface range fa0/7 - 24
+Switch(config-if-range)# shutdown
+Configure trunk ports (fa0/1–fa0/4):
+
+For the trunk ports between switches, you need to enable Root Guard to prevent any non-root bridge from becoming the Root Bridge:
+
+bash
+Copy
+Edit
+Switch(config)# interface range fa0/1 - 4
+Switch(config-if-range)# spanning-tree root-guard
+Switch(config-if-range)# exit
+Configure end device ports (fa0/5–fa0/6):
+
+For the end device ports, you can enable PortFast so that the ports immediately transition to the Forwarding state:
+
+bash
+Copy
+Edit
+Switch(config)# interface range fa0/5 - 6
+Switch(config-if-range)# spanning-tree portfast
+Switch(config-if-range)# exit
+Verify your configuration:
+
+To check the status of Root Guard on the trunk ports:
+
+bash
+Copy
+Edit
+Switch# show spanning-tree interface fa0/1
+To check that PortFast is enabled on the end device ports:
+
+bash
+Copy
+Edit
+Switch# show spanning-tree interface fa0/5
+Save your configuration (if everything looks good):
+
+bash
+Copy
+Edit
+Switch# write memory
+What will happen:
+Trunk ports (fa0/1–fa0/4) will have Root Guard enabled, so if any non-root switch tries to become the Root Bridge, the port will be placed into an errdisable state.
+End device ports (fa0/5–fa0/6) will have PortFast enabled, causing them to quickly transition to the Forwarding state, which is useful for devices like computers, printers, etc.
+Unused ports (fa0/7–fa0/24) will be shut down to prevent accidental connections.
+Summary:
+Trunk ports (fa0/1–fa0/4): Apply Root Guard to prevent another switch from becoming the Root Bridge.
+End device ports (fa0/5–fa0/6): Apply PortFast to speed up the transition of those ports to the Forwarding state.
+Unused ports: Shut them down to keep them inactive.
+Let me know if you need further clarification!
 PortFast allows an access port to transition immediately to the Forwarding state without going through STP's normal process (Blocking → Listening → Learning → Forwarding).
 
 **Configuration**
