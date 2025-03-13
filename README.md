@@ -24,12 +24,23 @@ Each switch has trunk ports connecting to the other two.
 Connect SW1, SW2, SW3 using trunk links (e.g., Fa0/1 and Fa0/2).\
 Assign a management IP (optional).
 
+**Voluntary, but recommended**
+
+Hostname SW1/2/3\
+Logging synchronous\
+exec-timeout 20\
+no ip-domain look-up
 
 **Step 2 Configure Trunk Ports on All Switches**
 ```
 Switch(config)# interface range fa0/1 - 2
 Switch(config-if-range)# switchport mode trunk
 Switch(config-if-range)# exit
+
+Switch(config)# interface range fa0/3 - 4
+Switch(config-if-range)# switchport mode trunk
+Switch(config-if-range)# exit
+
 ```
 
 **Step 3: Enable STP and Verify**
@@ -50,8 +61,28 @@ SW1(config)# spanning-tree vlan 1 priority 4096
 
 **Step 5: Verify STP Operation**
 ```
-Switch# show spanning-tree
+SW1# show spanning-tree
+SW1# show spanning-tree int f0/1
 ```
+
+**Set Root Bridge SW3 as Root**
+```
+SW3(config)#spanning-tree vlan 1 priority 0
+```
+**Verify STP Operation**
+```
+SW3# show spanning-tree
+SW3# show spanning-tree int f0/1
+SW3# show spanning-tree int f0/2
+SW3# show spanning-tree int f0/3
+SW3# show spanning-tree int f0/4
+```
+**Set No Root Bridge SW3 as Root**
+```
+SW3#spanning-tree vlan 1 priority 32768
+```
+
+
 
 + One port should be in blocking state to prevent loops.
 + If you disconnect an active link, the blocked port should become active.
