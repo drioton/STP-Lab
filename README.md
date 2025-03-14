@@ -1,4 +1,6 @@
-# Spanning Tree Projects (STP, RSTP, PVST+, )
+# Spanning Tree Projects 
+### STP, RSTP, PVST+, Port-Security, Guard Root, BPDU
+
 ![STP](images/1.STP.png)
 ## Overview
 We will build a network with three switches connected in a triangle topology and configure different Spanning Tree Protocol versions:
