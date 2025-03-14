@@ -59,11 +59,12 @@ Switch# show spanning-tree int f0/1 (2,3,4)
 Switch# show spanning-tree detail
 ```
 **Ports**
-![STP](images/2.STP ports.png)
+
+![STP](images/2.STP_ports.png)
 
 **Root Bridge**
 
-![STP](images/3.STP root bridge.png)
+![STP](images/3.STP_root_bridge.png)
 
 If not enabled, activate it:
 ```
