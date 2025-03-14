@@ -1,4 +1,4 @@
-# Spanning Tree Projects (STP, RSTP, PVST+, MSTP)
+# Spanning Tree Projects (STP, RSTP, PVST+, )
 ![STP](images/1.STP.png)
 ## Overview
 We will build a network with three switches connected in a triangle topology and configure different Spanning Tree Protocol versions:
@@ -6,11 +6,10 @@ We will build a network with three switches connected in a triangle topology and
 1. **STP (Standard Spanning Tree Protocol)** – Prevents loops but has slow convergence.
 2. **RSTP (Rapid Spanning Tree Protocol)** – Faster recovery time than STP.
 3. **PVST+ (Per VLAN Spanning Tree)** – Separate STP instances for each VLAN.
-4. **MSTP (Multiple Spanning Tree Protocol)** – Groups VLANs into instances for efficiency.
 
 
 
-## Project 1: Basic STP Configuration
+# Project 1: Basic STP Configuration
 **Objective**\
 Set up Spanning Tree Protocol (STP) to prevent loops in a simple network.
 
@@ -72,13 +71,12 @@ end
 ```
 
 
-**Configuration Steps:**
+## Configuration Steps:
 
-**Step 1: Configure Basic Network**
+**Step 1.1: Configure Basic Network**
 Connect SW1, SW2, SW3 using trunk links (e.g., Fa0/1 and Fa0/2).\
-Assign a management IP (optional).
 
-**Step 2 Configure Trunk Ports on All Switches**
+**Step 1.2 Configure Trunk Ports on All Switches**
 ```
 Switch(config)# interface range fa0/1 - 2
 Switch(config-if-range)# switchport mode trunk
@@ -90,7 +88,7 @@ Switch(config-if-range)# exit
 
 ```
 
-**Step 3: Enable STP and Verify**
+**Step 1.3: Enable STP and Verify**
 Check if STP is running:
 
 ```
@@ -106,48 +104,47 @@ Switch# show spanning-tree detail
 
 ![RB](images/RB.png)
 
-If not enabled, activate it:
+
+**Step 1.4: Set Root Bridge (SW1 as Root)**
 ```
-Switch(config)# spanning-tree mode pvst
-```
-**Step 4: Set Root Bridge (SW1 as Root)**
-```
-SW1(config)# spanning-tree vlan 1 priority 4096
+SW1(config)# spanning-tree vlan 1 priority 0
 ```
 (The lowest priority switch becomes the root bridge.)
 
-**Step 5: Verify STP Operation**
+**Step 1.5: Verify STP Operation**
 ```
 SW1# show spanning-tree
-SW1# show spanning-tree int f0/1
 ```
-
-**Set Root Bridge SW1(in my case is RB SW3) as Root**
+**Step 1.6 Set Root Bridge SW1(in my case is RB SW3) as Root**
 ```
 SW1(config)#spanning-tree vlan 1 priority 0
 ```
 **Verify STP Operation**
 ```
-SW3# show spanning-tree
+SW1# show spanning-tree
 ```
 ![NRB](images/New_RB.png)
 
-**Set No Root Bridge SW3 as Root**
+**Return**
 ```
-SW3#spanning-tree vlan 1 priority 32768
+SW1(config)#spanning-tree vlan 1 priority 32768
 ```
 
+```
+SW3 #sh spanning-tree 
+```
 
+![RBSW3](images/RBSW3.png)
 
 + One port should be in blocking state to prevent loops.
 + If you disconnect an active link, the blocked port should become active.
 
 
-# Verifying STP (Standard Spanning Tree Protocol)
+## Verifying STP (Standard Spanning Tree Protocol)
 
 **Check if STP is running and which switch is the Root Bridge**
 ```
-Switch# show spanning-tree
+SW# show spanning-tree
 ```
 
 + Verify the Root Bridge for VLAN 1.
@@ -155,7 +152,7 @@ Switch# show spanning-tree
 
 **Check the STP state of a specific interface**
 ```
-Switch# show spanning-tree interface fa0/1
+SW# show spanning-tree interface fa0/1
 ```
 
 See if the port is in Forwarding, Blocking, or Listening state.
@@ -164,210 +161,286 @@ See if the port is in Forwarding, Blocking, or Listening state.
 + Physically disconnect one trunk link and check if a Blocked port becomes active.
 + Run the command again to verify:
 ```
-Switch# show spanning-tree
+SW# show spanning-tree
 ```
 
-# Verifying Spanning Tree with End Devices
+#  Spanning Tree with End Devices
 
-This setup includes **PCs connected to access ports**, allowing you to configure **PortFast and additional STP security features.**
 
-## 1. Enabling PortFast and Testing It
+This setup includes **PCs(2x) connected to access ports**, allowing you to configure **PortFast and additional STP security features.**
 
-Disable all unused ports (except 1–6):
 
-Go to global configuration mode:
+![ED](images/ED.png)
 
-bash
-Copy
-Edit
-Switch# configure terminal
-Disable unused ports (let’s assume ports 7–24 are unused):
+## 1. Enabling PortFast, Disable all unused ports and Testing It
 
-bash
-Copy
-Edit
-Switch(config)# interface range fa0/7 - 24
-Switch(config-if-range)# shutdown
-Configure trunk ports (fa0/1–fa0/4):
+**Assign a management IP (need for a PortFast and Root Guard )**
 
-For the trunk ports between switches, you need to enable Root Guard to prevent any non-root bridge from becoming the Root Bridge:
+| PC  | Switch | Port  | VLAN | IP Address      | Subnet Mask       | Gateway         |
+|-----|--------|-------|------|---------------|-----------------|----------------|
+| PC1 | SW1    | Fa0/5 | 10   | 192.168.10.11 | 255.255.255.0   | 192.168.10.1   |
+| PC2 | SW1    | Fa0/6 | 10   | 192.168.10.12 | 255.255.255.0   | 192.168.10.1   |
+| PC3 | SW2    | Fa0/5 | 20   | 192.168.20.11 | 255.255.255.0   | 192.168.20.1   |
+| PC4 | SW2    | Fa0/6 | 20   | 192.168.20.12 | 255.255.255.0   | 192.168.20.1   |
+| PC5 | SW3    | Fa0/5 | 30   | 192.168.30.11 | 255.255.255.0   | 192.168.30.1   |
+| PC6 | SW3    | Fa0/6 | 30   | 192.168.30.12 | 255.255.255.0   | 192.168.30.1   |
 
-bash
-Copy
-Edit
-Switch(config)# interface range fa0/1 - 4
-Switch(config-if-range)# spanning-tree root-guard
-Switch(config-if-range)# exit
-Configure end device ports (fa0/5–fa0/6):
 
-For the end device ports, you can enable PortFast so that the ports immediately transition to the Forwarding state:
-
-bash
-Copy
-Edit
-Switch(config)# interface range fa0/5 - 6
-Switch(config-if-range)# spanning-tree portfast
-Switch(config-if-range)# exit
-Verify your configuration:
-
-To check the status of Root Guard on the trunk ports:
-
-bash
-Copy
-Edit
-Switch# show spanning-tree interface fa0/1
-To check that PortFast is enabled on the end device ports:
-
-bash
-Copy
-Edit
-Switch# show spanning-tree interface fa0/5
-Save your configuration (if everything looks good):
-
-bash
-Copy
-Edit
-Switch# write memory
-What will happen:
-Trunk ports (fa0/1–fa0/4) will have Root Guard enabled, so if any non-root switch tries to become the Root Bridge, the port will be placed into an errdisable state.
-End device ports (fa0/5–fa0/6) will have PortFast enabled, causing them to quickly transition to the Forwarding state, which is useful for devices like computers, printers, etc.
-Unused ports (fa0/7–fa0/24) will be shut down to prevent accidental connections.
-Summary:
-Trunk ports (fa0/1–fa0/4): Apply Root Guard to prevent another switch from becoming the Root Bridge.
-End device ports (fa0/5–fa0/6): Apply PortFast to speed up the transition of those ports to the Forwarding state.
-Unused ports: Shut them down to keep them inactive.
-Let me know if you need further clarification!
-PortFast allows an access port to transition immediately to the Forwarding state without going through STP's normal process (Blocking → Listening → Learning → Forwarding).
-
-**Configuration**
-
-Apply PortFast on access ports connected to PCs:
-
+**Disable unused ports (let’s assume ports 7–24 are unused):**
 ```
-Switch(config)# interface fa0/2
-Switch(config-if)# spanning-tree portfast
-Switch(config-if)# end
-```
-+ Do this for every PC port.
-
-**Verification**
-
-Check if PortFast is enabled:
-
-```
-Switch# show spanning-tree interface fa0/2 portfast
+SW(config)# interface range fa0/7 - 24
+SW(config-if-range)# shutdown
+SW(config-if-range)# exit
+SW(config)#int range g0/1-2
+SW(config-if-range)# shutdown
+SW(config-if-range)# exit
 ```
 
-**Testing PortFast**
-1. Disconnect and reconnect the PC cable.
-2. Run:
 ```
-Switch# show spanning-tree interface fa0/2
+interface FastEthernet0/1
+ switchport mode trunk
+!
+interface FastEthernet0/2
+ switchport mode trunk
+!
+interface FastEthernet0/3
+ switchport mode trunk
+!
+interface FastEthernet0/4
+ switchport mode trunk
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+ shutdown
+!
+interface FastEthernet0/8
+ shutdown
+!
+interface FastEthernet0/9
+ shutdown
+!
+interface FastEthernet0/10
+ shutdown
+!
+interface FastEthernet0/11
+ shutdown
+!
+interface FastEthernet0/12
+ shutdown
+!
+interface FastEthernet0/13
+ shutdown
+!
+interface FastEthernet0/14
+ shutdown
+!
+interface FastEthernet0/15
+ shutdown
+!
+interface FastEthernet0/16
+ shutdown
+!
+interface FastEthernet0/17
+ shutdown
+!
+interface FastEthernet0/18
+ shutdown
+!
+interface FastEthernet0/19
+ shutdown
+!
+interface FastEthernet0/20
+ shutdown
+!
+interface FastEthernet0/21
+ shutdown
+!
+interface FastEthernet0/22
+ shutdown
+!
+interface FastEthernet0/23
+ shutdown
+!
+interface FastEthernet0/24
+ shutdown
+!
+interface GigabitEthernet0/1
+shutdown
+!
+interface GigabitEthernet0/2
+shutdown
 ```
-+ The port should immediately transition to Forwarding (instead of waiting 30 seconds).
+### Configure trunk ports (fa0/3–fa0/4):
 
-## 2. Enabling BPDU Guard and Testing It
+**For the trunk ports between switches, you need to enable Root Guard to prevent any non-root bridge from becoming the Root Bridge:**
+**My RB is SW3:**
 
-BPDU Guard **disables the port if it receives BPDU packets**, preventing accidental switch connections on access ports.
-
-**Configuration**
-
-Enable BPDU Guard on all **PortFast ports:**
-
+![RG](images/RD.png)
 ```
-Switch(config)# interface fa0/2
-Switch(config-if)# spanning-tree bpduguard enable
-Switch(config-if)# end
+SW1(config)# interface f0/7
+SW1(config-if-range)# spanning-tree guard root
+SW1(config-if-range)# no shutdown
+SW1(config-if-range)# end
 ```
-
-**Verification**
-
-Check if BPDU Guard is enabled:
+**Verification of Root Guard:**
 ```
-Switch# show spanning-tree interface fa0/2 detail
+SW1# show spanning-tree interface f0/7 detail
 ```
-+ Look for BPDU Guard: **Enabled**.
-
-
-**Testing BPDU Guard**
-
-1. **Connect another switch to fa0/2** instead of a PC.
-2. The port should immediately **shut down** upon receiving BPDU packets.
-3. Check the error:
-```
-Switch# show interfaces status err-disabled
-```
-
-4. **Reactivate the port** manually:
-```
-Switch(config)# interface fa0/2
-Switch(config-if)# shutdown
-Switch(config-if)# no shutdown
-```
-
-## 3. Enabling Root Guard and Testing It
-
-Root Guard prevents unauthorized switches from becoming the **Root Bridge.**
-
-**Configuration**
-Apply Root Guard on designated ports facing potential unauthorized switches:
-```
-Switch(config)# interface fa0/3
-Switch(config-if)# spanning-tree guard root
-Switch(config-if)# end
-```
-**Verification**
-Check if Root Guard is enabled:
-```
-Switch# show spanning-tree interface fa0/3 detail
-```
-+ Look for Root Guard: **Enabled.**
-
-
-**Testing Root Guard**
-1. Set another switch to a lower priority so it tries to become the Root Bridge:
-```
-Switch(config)# spanning-tree vlan 1 priority 0
-```
-2. The port should go into "Root Inconsistent" state and block traffic.
-3. Verify the status:
-```
-Switch# show spanning-tree inconsistentports
-```
-## Enabling Loop Guard and Testing It
-Loop Guard prevents unidirectional link failures from causing **STP loops.**
-
-**Configuration**
-Apply Loop Guard on trunk ports connecting switches:
-```
-Switch(config)# interface fa0/24
-Switch(config-if)# spanning-tree guard loop
-Switch(config-if)# end
-```
-
-**Verification**
-Check if Loop Guard is enabled:
-```
-Switch# show spanning-tree interface fa0/24 detail
-```
-+ Look for Loop Guard: **Enabled.**
-
-**Testing Loop Guard**
-1. **Disconnect one side of the trunk link.**
-2. The switch should detect an inconsistent state and block the port.
-3. Verify the status:
-```
-Switch# show spanning-tree inconsistentports
-```
-4. Reconnect the trunk cable, and the port should automatically recover.
+If Root Guard is active, the port remains Forwarding. If it receives an unexpected superior BPDU, it moves to Root Inconsistent (Blocking) mode.
 
 
-###Final Notes
-1. These configurations improve STP security and network stability.
-2. Run the verification commands after configuring each feature.
-3. Now, test the failover scenarios to see STP in action!
+**Test Root Guard:**
 
-## Upgrade to RSTP
+ Add switch on int f0/7
+ 
+![RG](images/Rogue.png)
+ 
+```
+Rogue(config)# spanning-tree vlan 1 priority 0
+```
++ Check if Root Guard blocks the port:
+
+Message 
+```
+SW1#%SPANTREE-2-ROOTGUARDBLOCK: Port 0/7 tried to become non-designated in VLAN 1.
+
+Moved to root-inconsistent state
+```
+```
+SW1#show spanning-tree inconsistentports 
+Name                 Interface            Inconsistency
+-------------------- -------------------- ------------------
+VLAN0001             FastEthernet0/7      Root Inconsistent
+
+Number of inconsistent ports (segments) in the system : 1
+```
+
+###  Configure PortFast on access ports (F0/5-6)
+
+
+PortFast allows access ports to skip STP’s Listening and Learning states, immediately transitioning to **Forwarding.**
+```
+SW1-3(config)# interface range f0/5-6 SW1 only int f0/6
+SW1-3(config-if-range)# spanning-tree portfast
+SW1-3(config-if-range)# end
+```
++ Verification of PortFast:
+```
+Switch# sh running-config
+```
+If PortFast is enabled, the port should be in Forwarding immediately after connecting a device.
+
+**Test PortFast:**
++ Disconnect PC 1 and 2
++ Connect a PC to F0/5 or F0/6.
++ Run a ping (192.168.10.12 from PC 1 and 192.168.10.11 from PC 2) test immediately after connecting to verify that there’s no delay in link activation.
+
+![PF](images/Portfast.png)
+
+
+### Configure BPDU Guard on PortFast ports (F0/5-6)
+BPDU Guard shuts down a port if it receives BPDU packets (protecting against misconfigurations and loops).
+
+```
+SW2(config)# interface range f0/5 - 6
+SW2(config-if-range)# spanning-tree bpduguard enable
+SW2(config-if-range)# end
+```
+**Verification of BPDU Guard:**
+```
+SW2# show spanning-tree interface f0/5 detail
+SW2# sh running-config 
+interface FastEthernet0/5
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/6
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+```
+If a BPDU is received, the port enters err-disabled mode.
+
+**Test BPDU Guard:**
+
++ Connect another switch to F0/5 or F0/6 and enable trunking to send BPDUs:
+
+```
+BPDU(config)# interface f0/1
+BPDU(config-if)# switchport mode trunk
+```
+![BPDU](images/BPDU.png)
+```
+SW2#%SPANTREE-2-BLOCK_BPDUGUARD: Received BPDU on port FastEthernet0/6 with BPDU Guard enabled. Disabling port.
+
+%PM-4-ERR_DISABLE: bpduguard error detected on 0/6, putting 0/6 in err-disable state
+
+
+%LINK-5-CHANGED: Interface FastEthernet0/6, changed state to administratively down
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/6, changed state to down
+```
+
++ Check if BPDU Guard err-disables the port:
+```
+SW2# show interfaces status | include err-disabled
+```
+
+![BPDU](images/Interfaces.png)
+
++ Recover the port by shutting it down and re-enabling:
+```
+SW2(config)# interface f0/6
+SW2(config-if)#no switchport mode trunk
+SW2(config-if)# shutdown
+SW2(config-if)# no shutdown
+```
+![REPAIR](images/RepairInt.png)
+
+## Port Security Configuration
+
+![PS](images/PS.png)
+
+Here’s how you can configure Port Security on your switch ports (e.g., ports 1-24) for end devices:
+
+Enable Port Security on All Ports:
+This example assumes you're setting it up on Fa0/1 - Fa0/24, but you can adjust the range based on your needs.
+```
+SW3(config)# interface range fa0/7
+SW3(config-if-range)# switchport mode access
+SW3(config-if-range)# switchport port-security
+SW3(config-if-range)# switchport port-security maximum 1
+SW3(config-if-range)# switchport port-security violation shutdown
+SW3(config-if-range)# switchport port-security mac-address sticky
+```
++ Connect another PC
+
+![PS](images/Port-security.png)
+
+**Explanation of the Commands:**
+
+**switchport port-security:** Enables Port Security on the specified port.\
+**switchport port-security maximum 1:** Allows only 1 device to be connected to the port. If more than 1 device is detected, the port will be disabled.\
+**switchport port-security violation shutdown:** If a violation occurs (e.g., an unauthorized device connects), the port will be shut down.\
+**switchport port-security mac-address sticky:** Automatically learns and stores the MAC addresses of connected devices. If a device is removed and reconnected, it will be allowed as long as its MAC address matches the learned address.
+
+**When to Use Port Security:**
++ Port Security** should be used when you want to restrict which devices are allowed to connect to a port, ensuring that only specific MAC addresses are authorized to access the network.
++ It is useful for preventing unauthorized devices from connecting to your network, reducing the risk of MAC flooding or spoofing attacks.
++ It can be used to ensure that if a device is swapped or disconnected, the new device will need to have its MAC address explicitly configured or be automatically learned (if using sticky MAC address configuration).
+
+**Comparison of Port Security vs BPDU Guard:**
++ **Port Security** is more flexible and can be used on any port to limit which devices (identified by their MAC addresses) are allowed to connect.
++ **BPDU Guard** is focused on preventing BPDU messages from being received on ports where they shouldn't be (usually ports that connect to end devices), preventing unintended changes to STP topology.
++ **Both** features can be used together on the same port, which can provide even more security. Port Security will prevent unauthorized devices from connecting, while BPDU Guard will protect your STP topology from unauthorized switches.
+
+**When to Use Both Together:**
++ Use Port Security on your access ports to limit the number of devices connected based on MAC addresses.
++ Use BPDU Guard on the same ports to prevent unauthorized switches from being added to your network, which could affect your STP topology.
+
+## Project 2: Upgrade to RSTP
 
 **Objective:**
 Convert STP to **RSTP** for faster convergence.
@@ -375,28 +448,21 @@ Convert STP to **RSTP** for faster convergence.
 Configuration Steps:
 Step 1: Change STP Mode to RSTP (on all switches)
 ```
-Switch(config)# spanning-tree mode rapid-pvst
+SW(config)# spanning-tree mode rapid-pvst
 ```
 
-**Step 2: Verify RSTP Operation**
-Check if RSTP is running:
-```
-Switch# show spanning-tree
-```
-+ Ports should now be in discarding/learning/forwarding states instead of blocking/listening/forwarding (STP).
-+ Test by disconnecting a link and checking if **RSTP recovers faster than STP**.
+![RSTP](images/RSTP.png)
 
 ### Verifying RSTP (Rapid Spanning Tree Protocol)
 
 **Check if RSTP is running**
 ```
-Switch# show spanning-tree
+SW# show spanning-tree
 ```
-+ Ports should now be in **Discarding / Learning / Forwarding instead of Blocking / Listening / Forwarding** (like in STP).
 
 **Verify RSTP state on a specific interface**
 ```
-Switch# show spanning-tree interface fa0/1
+SW# show spanning-tree interface fa0/1
 ```
 + Check if the port has switched to Forwarding faster than with standard STP.
 
@@ -404,7 +470,7 @@ Switch# show spanning-tree interface fa0/1
 1. Disconnect one trunk link and measure how fast RSTP recovers (should be near-instant).
 2. Run:
 ```
-Switch# show spanning-tree
+SW# show spanning-tree
 ```
 + The previously discarding port should immediately switch to Forwarding.
 
@@ -416,18 +482,23 @@ Run **separate STP instances** per VLAN.
 **Configuration Steps:**
 **Step 1: Create VLANs on All Switches**
 ```
-Switch(config)# vlan 10
-Switch(config)# vlan 20
-Switch(config)# vlan 30
-Switch(config)# exit
+SW(config)# vlan 10
+SW(config)# vlan 20
+SW(config)# vlan 30
+SW(config)# exit
 ```
 **Step 2: Configure Trunk Ports**
 ```
-Switch(config)# interface range fa0/1 - 2
-Switch(config-if-range)# switchport mode trunk
-Switch(config-if-range)# switchport trunk allowed vlan 10,20,30
-Switch(config-if-range)# exit
+SW(config)# interface range fa0/1 - 2
+SW(config-if-range)# switchport mode trunk
+SW(config-if-range)# switchport trunk allowed vlan 10,20,30
+SW(config-if-range)# exit
+SW(config)# interface range fa0/3 - 4
+SW(config-if-range)# switchport mode trunk
+SW(config-if-range)# switchport trunk allowed vlan 10,20,30
+SW(config-if-range)# exit
 ```
+
 **Step 3: Set Root Bridge for Each VLAN
 Set SW1 as root for VLAN 10, SW2 for VLAN 20, and SW3 for VLAN 30:**
 ```
@@ -435,115 +506,36 @@ SW1(config)# spanning-tree vlan 10 priority 4096
 SW2(config)# spanning-tree vlan 20 priority 4096
 SW3(config)# spanning-tree vlan 30 priority 4096
 ```
+### SW3 Problem and why You Need to Change the Maximum Number of MAC Addresses on a Trunk Port
+
+
+Since a **trunk port** allows traffic from several VLANs, it will likely detect more than one MAC address. This causes the port security limit of **1** to be exceeded, which triggers a **violation** and places the port in **err-disabled** state.
+
+### Solution:
+```
+SW3(config)# interface range fa0/1 - 4
+SW3(config-if)# switchport port-security maximum 132
+```
 **Step 4: Verify PVST+ Operation**
 ```
-Switch# show spanning-tree vlan 10
-Switch# show spanning-tree vlan 20
-Switch# show spanning-tree vlan 30
+SW# show spanning-tree vlan 10
+SW# show spanning-tree vlan 20
+SW# show spanning-tree vlan 30
 ```
 Each VLAN should have a different root bridge, optimizing load balancing.
 
 ###  Verifying PVST+ (Per-VLAN Spanning Tree)
 ** Check STP status for a specific VLAN**
 ```
-Switch# show spanning-tree vlan 10
-Switch# show spanning-tree vlan 20
-Switch# show spanning-tree vlan 30
+SW# show spanning-tree vlan 10
+SW# show spanning-tree vlan 20
+SW# show spanning-tree vlan 30
 ```
 + Each VLAN should have a different Root Bridge if configured properly.
 
-**Check root bridge per VLAN**
-```
-Switch# show spanning-tree vlan 10 root
-```
-+ This should show which switch is the root bridge for VLAN 10.
-
-**Verify trunk VLAN settings**
-```
-Switch# show interfaces trunk
-```
-+ Make sure VLANs 10, 20, 30 are allowed on the trunk.
-
-## Project 4: Migrate to MSTP (Multiple Spanning Tree Protocol)
-**Objective:**
-Use **MSTP** to group VLANs into instances.
-
-**Configuration Steps:**
-**Step 1: Enable MSTP on All Switches**
-```
-Switch(config)# spanning-tree mode mst
-```
-**Step 2: Define MST Region** (Must be identical on all switches!)
-```
-Switch(config)# spanning-tree mst configuration
-Switch(config-mst)# name MyMST
-Switch(config-mst)# revision 1
-Switch(config-mst)# instance 1 vlan 10,20
-Switch(config-mst)# instance 2 vlan 30,40
-Switch(config-mst)# exit
-```
-**Step 3: Set Root Bridge for MST Instances**
-```
-SW1(config)# spanning-tree mst 1 priority 4096
-SW2(config)# spanning-tree mst 2 priority 4096
-```
-**Step 4: Verify MSTP Operation**
-```
-Switch# show spanning-tree mst
-```
-+ VLANs 10 and 20 should share MST instance 1.
-+ VLANs 30 and 40 should share MST instance 2.
-
-### Verifying MSTP (Multiple Spanning Tree Protocol)
-
-**Check MSTP instance configuration**
-```
-Switch# show spanning-tree mst
-```
-+ **Verify:**
-1. MST region name
-2. Revision number
-3. VLAN-to-instance mapping
-4. Root bridge per instance
-
-** Check details of each MSTP instance**
-```
-Switch# show spanning-tree mst detail
-```
-+ Verify which VLANs belong to which MST instance.
-+ Check the port roles (Root, Designated, Alternate, Blocking).
-
-** Check if MSTP switches are in the same region**
-```
-Switch# show spanning-tree mst configuration
-```
-+ The Region Name and Revision Number must be the same on all switches.
-
-**Verify VLAN-to-MST instance mapping**
-```
-Switch# show spanning-tree mst configuration
-```
-+ Ensure VLANs 10, 20 are in Instance 1, VLANs 30, 40 are in Instance 2.
-
-**Check root bridge for each MST instance**
-```
-Switch# show spanning-tree mst 1 root
-Switch# show spanning-tree mst 2 root
-```
-
-+ Each MST instance should have its own Root Bridge.
-++Test MSTP failover++
-**Disconnect one trunk link** and verify if the **Alternate port switches to Forwarding.**
-Run:
-```
-Switch# show spanning-tree mst
-```
-+ A previously blocked port should become forwarding.
+![VLAN](images/VLAN.png)
 
 
-### Final Steps
-Run these verification commands after each configuration to confirm everything is working properly.\
-If something isn’t working, check port states, root bridge roles, and VLAN mappings!
 
 
 
