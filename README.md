@@ -58,6 +58,13 @@ Switch# show spanning-tree
 Switch# show spanning-tree int f0/1 (2,3,4)
 Switch# show spanning-tree detail
 ```
+**Ports**
+(images/2.STP ports.png)
+
+**Root Bridge**
+
+(images/3.STP root bridge.png)
+
 If not enabled, activate it:
 ```
 Switch(config)# spanning-tree mode pvst
