@@ -31,6 +31,46 @@ exec-timeout 20
 end
 copy running-config startup-config
 ```
+**Result**
+
+```
+SW1#sh running-config 
+Building configuration...
+
+Current configuration : 1229 bytes
+!
+version 15.0
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname SW1
+!
+!
+!
+no ip domain-lookup
+interface Vlan1
+ no ip address
+ shutdown
+!
+!
+!
+!
+line con 0
+ logging synchronous
+ exec-timeout 20 0
+!
+line vty 0 4
+ login
+line vty 5 15
+ login
+!
+!
+!
+!
+end
+```
+
 
 **Configuration Steps:**
 
@@ -60,11 +100,11 @@ Switch# show spanning-tree detail
 ```
 **Ports**
 
-![STP](images/2.STP_ports.png)
+![Ports](images/2.STP_ports.png)
 
 **Root Bridge**
 
-![STP](images/3.STP_root_bridge.png)
+![RB](images/3.STP_root_bridge.png)
 
 If not enabled, activate it:
 ```
