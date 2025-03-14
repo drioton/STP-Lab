@@ -3,9 +3,9 @@
 ## Overview
 We will build a network with three switches connected in a triangle topology and configure different Spanning Tree Protocol versions:
 
-1. **STP (Standard Spanning Tree Protocol)** – Prevents loops but has slow convergence.\
-2. **RSTP (Rapid Spanning Tree Protocol)** – Faster recovery time than STP.\
-3. **PVST+ (Per VLAN Spanning Tree)** – Separate STP instances for each VLAN.\
+1. **STP (Standard Spanning Tree Protocol)** – Prevents loops but has slow convergence.
+2. **RSTP (Rapid Spanning Tree Protocol)** – Faster recovery time than STP.
+3. **PVST+ (Per VLAN Spanning Tree)** – Separate STP instances for each VLAN.
 4. **MSTP (Multiple Spanning Tree Protocol)** – Groups VLANs into instances for efficiency.
 
 
@@ -100,11 +100,11 @@ Switch# show spanning-tree detail
 ```
 **Ports**
 
-![Ports](images/2.STP_ports.png)
+![Ports](images/Ports.png)
 
 **Root Bridge**
 
-![RB](images/3.STP_root_bridge.png)
+![RB](images/RB.png)
 
 If not enabled, activate it:
 ```
