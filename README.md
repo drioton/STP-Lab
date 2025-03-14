@@ -1,5 +1,5 @@
 # Spanning Tree Projects (STP, RSTP, PVST+, MSTP)
-
+![STP](images/1.STP.png)
 ## Overview
 We will build a network with three switches connected in a triangle topology and configure different Spanning Tree Protocol versions:
 
@@ -18,18 +18,25 @@ Set up Spanning Tree Protocol (STP) to prevent loops in a simple network.
 3 Cisco 2960 switches (SW1, SW2, SW3) connected in a triangle.\
 Each switch has trunk ports connecting to the other two.
 
+**Basic Switch Configuration**
+
+```
+enable
+configure terminal
+hostname SW1(2,3)
+no ip domain-lookup
+line console 0
+logging synchronous
+exec-timeout 20
+end
+copy running-config startup-config
+```
+
 **Configuration Steps:**
 
 **Step 1: Configure Basic Network**
 Connect SW1, SW2, SW3 using trunk links (e.g., Fa0/1 and Fa0/2).\
 Assign a management IP (optional).
-
-**Voluntary, but recommended**
-
-Hostname SW1/2/3\
-Logging synchronous\
-exec-timeout 20\
-no ip-domain look-up
 
 **Step 2 Configure Trunk Ports on All Switches**
 ```
@@ -48,6 +55,8 @@ Check if STP is running:
 
 ```
 Switch# show spanning-tree
+Switch# show spanning-tree int f0/1 (2,3,4)
+Switch# show spanning-tree detail
 ```
 If not enabled, activate it:
 ```
