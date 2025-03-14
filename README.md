@@ -122,18 +122,16 @@ SW1# show spanning-tree
 SW1# show spanning-tree int f0/1
 ```
 
-**Set Root Bridge SW3 as Root**
+**Set Root Bridge SW1(in my case is RB SW3) as Root**
 ```
-SW3(config)#spanning-tree vlan 1 priority 0
+SW1(config)#spanning-tree vlan 1 priority 0
 ```
 **Verify STP Operation**
 ```
 SW3# show spanning-tree
-SW3# show spanning-tree int f0/1
-SW3# show spanning-tree int f0/2
-SW3# show spanning-tree int f0/3
-SW3# show spanning-tree int f0/4
 ```
+![NRB](images/New_RB.png)
+
 **Set No Root Bridge SW3 as Root**
 ```
 SW3#spanning-tree vlan 1 priority 32768
