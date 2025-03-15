@@ -75,28 +75,28 @@ end
 
 ## Configuration Steps:
 
-**Step 1.1: Configure Basic Network**
+**Step 1: Configure Basic Network**
 Connect SW1, SW2, SW3 using trunk links (e.g., Fa0/1 and Fa0/2).\
 
-**Step 1.2 Configure Trunk Ports on All Switches**
+**Step 2 Configure Trunk Ports on All Switches**
 ```
-Switch(config)# interface range fa0/1 - 2
-Switch(config-if-range)# switchport mode trunk
-Switch(config-if-range)# exit
+SW(config)# interface range fa0/1 - 2
+SW(config-if-range)# switchport mode trunk
+SW(config-if-range)# exit
 
-Switch(config)# interface range fa0/3 - 4
-Switch(config-if-range)# switchport mode trunk
-Switch(config-if-range)# exit
+SW(config)# interface range fa0/3 - 4
+SW(config-if-range)# switchport mode trunk
+SW(config-if-range)# exit
 
 ```
 
-**Step 1.3: Enable STP and Verify**
+**Step 3: Enable STP and Verify**
 Check if STP is running:
 
 ```
-Switch# show spanning-tree
-Switch# show spanning-tree int f0/1 (2,3,4)
-Switch# show spanning-tree detail
+SW# show spanning-tree
+SW# show spanning-tree int f0/1 (2,3,4)
+SW# show spanning-tree detail
 ```
 **Ports**
 
@@ -107,17 +107,17 @@ Switch# show spanning-tree detail
 ![RB](images/RB.png)
 
 
-**Step 1.4: Set Root Bridge (SW1 as Root)**
+**Step 4: Set Root Bridge (SW1 as Root)**
 ```
 SW1(config)# spanning-tree vlan 1 priority 0
 ```
 (The lowest priority switch becomes the root bridge.)
 
-**Step 1.5: Verify STP Operation**
+**Step 5: Verify STP Operation**
 ```
 SW1# show spanning-tree
 ```
-**Step 1.6 Set Root Bridge SW1(in my case is RB SW3) as Root**
+**Step 6 Set Root Bridge SW1(in my case is RB SW3) as Root**
 ```
 SW1(config)#spanning-tree vlan 1 priority 0
 ```
@@ -331,7 +331,7 @@ SW1-3(config-if-range)# end
 ```
 + Verification of PortFast:
 ```
-Switch# sh running-config
+SW# sh running-config
 ```
 If PortFast is enabled, the port should be in Forwarding immediately after connecting a device.
 
