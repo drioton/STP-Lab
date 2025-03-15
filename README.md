@@ -138,8 +138,6 @@ SW3 #sh spanning-tree
 
 ![RBSW3](images/RBSW3.png)
 
-+ One port should be in blocking state to prevent loops.
-+ If you disconnect an active link, the blocked port should become active.
 
 
 ## Verifying STP (Standard Spanning Tree Protocol)
@@ -165,6 +163,9 @@ See if the port is in Forwarding, Blocking, or Listening state.
 ```
 SW# show spanning-tree
 ```
++ One port should be in blocking state to prevent loops.
++ If you disconnect an active link, the blocked port should become active.
+
 
 #  Spanning Tree with End Devices
 
@@ -289,7 +290,7 @@ SW1(config-if-range)# end
 ```
 **Verification of Root Guard:**
 ```
-SW1# show spanning-tree interface f0/7 detail
+SW1# show spanning-tree interface f0/7 
 ```
 If Root Guard is active, the port remains Forwarding. If it receives an unexpected superior BPDU, it moves to Root Inconsistent (Blocking) mode.
 
@@ -508,7 +509,7 @@ SW1(config)# spanning-tree vlan 10 priority 4096
 SW2(config)# spanning-tree vlan 20 priority 4096
 SW3(config)# spanning-tree vlan 30 priority 4096
 ```
-### SW3 Problem and why You Need to Change the Maximum Number of MAC Addresses on a Trunk Port
+### SW3 Problem and why you need to change the maximum Number of MAC Addresses on a Trunk Port
 
 
 Since a **trunk port** allows traffic from several VLANs, it will likely detect more than one MAC address. This causes the port security limit of **1** to be exceeded, which triggers a **violation** and places the port in **err-disabled** state.
